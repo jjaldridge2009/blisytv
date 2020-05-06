@@ -633,6 +633,7 @@
      <string>Flowtimer</string>
     </property>
    </widget>
+   <zorder>label_9</zorder>
    <zorder>groupBox</zorder>
    <zorder>groupBox_4</zorder>
    <zorder>groupBox_3</zorder>
@@ -644,7 +645,6 @@
    <zorder>label_5</zorder>
    <zorder>label_8</zorder>
    <zorder>pushButton_2</zorder>
-   <zorder>label_9</zorder>
    <zorder>label_10</zorder>
    <zorder>label_11</zorder>
    <zorder>label_13</zorder>

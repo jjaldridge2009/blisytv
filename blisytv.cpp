@@ -65,6 +65,7 @@ void blisytv::on_pushButton_clicked()
 void blisytv::on_pushButton_2_clicked()
 {
 
+    ui->pushButton_3->setEnabled(true);
 
     QString console;
     long double frameRate;
@@ -108,7 +109,7 @@ void blisytv::on_pushButton_2_clicked()
 
 void blisytv::on_pushButton_3_clicked()
 {
-
+    ui->pushButton_3->setEnabled(false);
     QString console;
     long double frameRate;
     console = ui->consoleBox->currentText();
@@ -159,6 +160,9 @@ void blisytv::on_pushButton_3_clicked()
     }
     flowtimertv = QString::number(originalflowtimertv + flowtimerteli);
     ui->flowtv->setText(flowtimertv);
+
+    ui->outputms1->setValue(originalflowtimer + flowtimer);
+    ui->outputms2->setValue(originalflowtimertv + flowtimerteli);
 }
 
 
