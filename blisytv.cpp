@@ -105,16 +105,44 @@ void blisytv::on_pushButton_2_clicked()
 
 }
 
+
 void blisytv::on_pushButton_3_clicked()
 {
+
+    QString console;
+    long double frameRate;
+    console = ui->consoleBox->currentText();
+    if (console == "NDS"){
+        frameRate = 59.6555;
+
+    }else{
+        frameRate = 59.7275;
+    }
+
+    QString gameversion;
+    gameversion = ui->versionBox->currentText();
+    int seedlag;
+    if (gameversion == "FireRed 1.0"){
+        seedlag = 121;
+       } else if (gameversion == "FireRed 1.1"){
+        seedlag = 120;
+    } else if(gameversion == "LeafGreen"){
+        seedlag = 114;
+
+    }
+
+    QString abratimerms;
     QString flowtimertotal;
     QString flowtimertv;
     QString introtimer;
+    int abratimer;
     int originalflowtimer;
     int originalflowtimertv;
     int flowtimer;
     int flowtimerteli;
     int introtimer1;
+    abratimer = (1 / frameRate * 1000 ) * (ui->abraframe->value() - 20 + seedlag) + ui->introtimer->value();
+    abratimerms = QString::number(abratimer);
     introtimer1 = ui->introtimer->value();
     introtimer = QString::number(introtimer1);
     flowtimerteli = ui->outputmsadjust2->value();
@@ -122,10 +150,30 @@ void blisytv::on_pushButton_3_clicked()
    originalflowtimer = ui->outputms1->value();
    originalflowtimertv = ui->outputms2->value();
     flowtimertotal = QString::number(originalflowtimer + flowtimer );
+    if (ui->abrabox->isChecked()){
+        ui->flow1->setText( flowtimertotal + "/" + introtimer + "/" + abratimerms);
+    } else{
+
+
     ui->flow1->setText( flowtimertotal + "/" + introtimer);
+    }
     flowtimertv = QString::number(originalflowtimertv + flowtimerteli);
     ui->flowtv->setText(flowtimertv);
 }
+
+
+
+
+void blisytv::on_clear_clicked()
+{
+    ui->outputadjust2->setValue(0);
+    ui->outputadjust1->setValue(0);
+    ui->outputmsadjust2->setValue(0);
+    ui->outputmsadjust1->setValue(0);
+
+}
+
+
 
 blisytv::~blisytv()
 {
@@ -136,6 +184,7 @@ blisytv::~blisytv()
 
     delete ui;
 }
+
 
 
 
