@@ -20,9 +20,27 @@ private slots:
 
     void on_pushButton_2_clicked();
 
-    void on_pushButton_3_clicked();
+
 
     void on_clear_clicked();
+    void Settings();
+    void on_methodbox_activated(const QString &arg1);
+
+    void on_pushButton_4_clicked();
+
+
+    void on_pushButton_7_clicked();
+    void flowtimer();
+
+    void on_pushButton_3_clicked();
+
+    void on_pushButton_5_clicked();
+
+    void on_pushButton_6_clicked();
+
+    void on_pushButton_8_clicked();
+
+    void on_pushButton_9_clicked();
 
 private:
     Ui::blisytv *ui;

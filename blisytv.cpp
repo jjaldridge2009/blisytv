@@ -3,7 +3,27 @@
 #include <cmath>
 #include <iostream>
 
+//defining global ints
 int targetf;
+int seedlag;
+int secrettarget;
+int secrettv;
+int delayboxvalue;
+long double introtimerms;
+int abratimer;
+int secretflowtarget;
+int newframe;
+int secretframehit;
+//defining global long doubles(I use longdoubles with things for decimals, everything eventually ends as an int, but the rounding is better whenever two longdoubles multiply vs eachother)
+long double frameRate;
+long double seedlagms;
+
+//defining global qstrings
+QString console;
+QString gameversion;
+QString method;
+QString abratimerms;
+
 
 blisytv::blisytv(QWidget *parent)
     : QMainWindow(parent)
@@ -15,69 +35,131 @@ blisytv::blisytv(QWidget *parent)
 }
 
 
-void blisytv::on_pushButton_clicked()
+
+
+void blisytv::Settings()
 {
-    QString console;
-    long double frameRate;
-    console = ui->consoleBox->currentText();
-    if (console == "NDS"){
-        frameRate = 59.6555;
+console = ui->consoleBox->currentText();
+if (console == "NDS"){
+    frameRate = 59.6555;
 
+}else{
+    frameRate = 59.7275;
+}
+
+gameversion = ui->versionBox->currentText();
+
+if (gameversion == "FireRed 1.0"){
+    seedlag = 121;
+   } else if (gameversion == "FireRed 1.1"){
+    seedlag = 120;
+} else if(gameversion == "LeafGreen"){
+    seedlag = 114;
+
+}
+
+//this takes the valuye from abratimers checkbox, converts it to ms after subtracting 20 and accounting for seedlag, then adds it to the introtimer
+abratimer = (1 / frameRate * 1000 ) * (ui->abraframe->value() - 20 + seedlag) + ui->introtimer->value();
+abratimerms = QString::number(abratimer);
+
+seedlagms = 1 / frameRate * 1000 * seedlag;
+introtimerms = ui->introtimer->value() + seedlagms;
+
+delayboxvalue = ui->delaybox->value();
+
+
+}
+
+
+
+//this is the lag selector for whichever rng method you're using
+void blisytv::on_methodbox_activated(const QString &arg1)
+{
+    method = ui->methodbox->currentText();
+
+    if (method == "Stationary (Method 1/2/4)"){
+        ui->delaybox->setEnabled(true);
+        ui->delaybox->setValue(-20);
+    }   else if (method == "Sweet Scent (Outside)"){
+        ui->delaybox->setEnabled(false);
+        ui->delaybox->setValue(-261);
+    }   else if (method == "Sweet Scent (Cave)"){
+        ui->delaybox->setEnabled(false);
+        ui->delaybox->setValue(-268);
+    }   else if (method == "SID"){
+         ui->delaybox->setEnabled(true);
+        ui->delaybox->setValue(-249);
     }else{
-        frameRate = 59.7275;
+        ui->delaybox->setValue(delayboxvalue);
     }
+}
 
 
-    QString gameversion;
-    gameversion = ui->versionBox->currentText();
-    int seedlag;
-    if (gameversion == "FireRed 1.0"){
-        seedlag = 121;
-       } else if (gameversion == "FireRed 1.1"){
-        seedlag = 120;
-    } else if(gameversion == "LeafGreen"){
-        seedlag = 114;
+//this is for the  TeachyTV Target button.
+void blisytv::on_pushButton_clicked()
+    {
 
-    }
 
-    long double seedlagms;
-    seedlagms = 1 / frameRate * 1000 * seedlag;
-    long double introtimerms;
-    introtimerms = ui->introtimer->value() + seedlagms;
+
+    ui->pushButton_3->setEnabled(true);
+
+
+    //calls settings
+    Settings();
+
+    //this is code for calculating your target teachytv frame, and total target frame
+
     int introtimerframes;
     introtimerframes = introtimerms / 1000 * frameRate;
     int outoftvf;
     targetf = ui -> targetframe->value();
     outoftvf = ui -> outoftvframe->value();
+
+    //you add and subtract 33 here, because entering the tv is 34 frames of lag, and leaving it is 1 frame of lag, so you combine the value and compensate on both ends.
+    //ie you'll always be 34 frames too long outside, and 34 frames too short in the tv, and 1 frame too long in the tv, and 1 frame too short outside.
     int totaltvf = (targetf - outoftvf)/313 + 33;
     long double remain = (targetf - outoftvf) % 313;
     int outsidetv = (remain + outoftvf) - 33;
     int totaloutput;
-    totaloutput = totaltvf + outsidetv + introtimerframes;
+    totaloutput = totaltvf + outsidetv + introtimerframes + ui->delaybox->value();
     ui->output1->setValue(totaloutput);
     ui->output2->setValue(totaltvf);
     ui->outputms1->setValue(1 / frameRate * 1000 * totaloutput);
     ui->outputms2->setValue(1 / frameRate * 1000 * totaltvf);
 
+
+
+
+
+
+    //this sets these values to the current output of outputms1/2 for later in the update flowtimer section.
+    secrettarget = ui->outputms1->value();
+    secrettv = ui->outputms2->value();
+
+   //this is so when you change target frames, the calibrate values don't mess with it if they're there from a previous rng.
+    ui->outputadjust2->setValue(0);
+    ui->outputadjust1->setValue(0);
+    ui->outputmsadjust2->setValue(0);
+    ui->outputmsadjust1->setValue(0);
+
+
+
+
+
 }
 
-
+//This is for the adjust calculate button
 void blisytv::on_pushButton_2_clicked()
 {
 
+
     ui->pushButton_3->setEnabled(true);
 
-    QString console;
-    long double frameRate;
-    console = ui->consoleBox->currentText();
-    if (console == "NDS"){
-        frameRate = 59.6555;
+    //calls settings value
+    Settings();
 
-    }else{
-        frameRate = 59.7275;
-    }
-
-
+    //this is the math for calibrating. It prioritizes as much time in teachytv by looking to see if the remainder is greater than or less than 156.
+    //If it is greater than or equal to it, it increases your tv frame by 1, and subtracts the remainder from out of tv frames.
     int frameHit;
     frameHit = ui->frameHit->value();
     int adjtv;
@@ -104,70 +186,12 @@ void blisytv::on_pushButton_2_clicked()
     ui->outputmsadjust1->setValue(totalmsout + totaltvout);
 
 
-}
 
-
-void blisytv::on_pushButton_3_clicked()
-{
-    ui->pushButton_3->setEnabled(false);
-    QString console;
-    long double frameRate;
-    console = ui->consoleBox->currentText();
-    if (console == "NDS"){
-        frameRate = 59.6555;
-
-    }else{
-        frameRate = 59.7275;
-    }
-
-    QString gameversion;
-    gameversion = ui->versionBox->currentText();
-    int seedlag;
-    if (gameversion == "FireRed 1.0"){
-        seedlag = 121;
-       } else if (gameversion == "FireRed 1.1"){
-        seedlag = 120;
-    } else if(gameversion == "LeafGreen"){
-        seedlag = 114;
-
-    }
-
-    QString abratimerms;
-    QString flowtimertotal;
-    QString flowtimertv;
-    QString introtimer;
-    int abratimer;
-    int originalflowtimer;
-    int originalflowtimertv;
-    int flowtimer;
-    int flowtimerteli;
-    int introtimer1;
-    abratimer = (1 / frameRate * 1000 ) * (ui->abraframe->value() - 20 + seedlag) + ui->introtimer->value();
-    abratimerms = QString::number(abratimer);
-    introtimer1 = ui->introtimer->value();
-    introtimer = QString::number(introtimer1);
-    flowtimerteli = ui->outputmsadjust2->value();
-    flowtimer = ui->outputmsadjust1->value();
-   originalflowtimer = ui->outputms1->value();
-   originalflowtimertv = ui->outputms2->value();
-    flowtimertotal = QString::number(originalflowtimer + flowtimer );
-    if (ui->abrabox->isChecked()){
-        ui->flow1->setText( flowtimertotal + "/" + introtimer + "/" + abratimerms);
-    } else{
-
-
-    ui->flow1->setText( flowtimertotal + "/" + introtimer);
-    }
-    flowtimertv = QString::number(originalflowtimertv + flowtimerteli);
-    ui->flowtv->setText(flowtimertv);
-
-    ui->outputms1->setValue(originalflowtimer + flowtimer);
-    ui->outputms2->setValue(originalflowtimertv + flowtimerteli);
 }
 
 
 
-
+//this sets everything to 0 in the adjust column in case you hit it by accident.
 void blisytv::on_clear_clicked()
 {
     ui->outputadjust2->setValue(0);
@@ -177,6 +201,121 @@ void blisytv::on_clear_clicked()
 
 }
 
+
+
+
+
+
+
+//I should've named the pushbuttons, oh well. This one is for the flowtimer calculator tab, pushing it converts the int in converttargetframe spinbox
+//to ms and adds all the flowtimer info.
+void blisytv::on_pushButton_4_clicked()
+{
+    //sets frame hit box and adjustment value to zero when you choose a new target frame.
+    ui->convertertargetframehit->setValue(0);
+    ui->adjustedby->setValue(0);
+    //calls settings
+        Settings();
+        //setting ints and qstrings for this page
+        int targetflowtimercalculator;
+        int flowtimerout;
+        int introtimerint;
+
+        QString flowtimeroutput;
+        QString SIDCHECK;
+        QString introtimerstring;
+        QString flowtimerpure;
+        QString flowtimerforsid;
+        introtimerint = introtimerms;
+        targetflowtimercalculator = (1 / frameRate * 1000) * (ui->convertertargetframe->value() + ui->delaybox->value());
+        flowtimerout = targetflowtimercalculator + introtimerms;
+        flowtimerpure = QString::number(flowtimerout);
+        introtimerstring = QString::number(ui->introtimer->value());
+    //if abrabox is checked it adds abratimer to it, otherwise it doesn't.
+         if (ui->abrabox->isChecked()){
+        flowtimeroutput = flowtimerpure + "/" + introtimerstring + "/" + abratimerms;
+         }else{
+             flowtimeroutput = flowtimerpure + "/" + introtimerstring;
+         }
+
+    //if sid is checked, it won't add the intro timer to the ms conversion at all.
+        SIDCHECK = ui->methodbox->currentText();
+        int onlyflowtimer;
+        onlyflowtimer = (1 / frameRate * 1000) * (ui->convertertargetframe->value() + delayboxvalue);
+        flowtimerforsid = QString::number(onlyflowtimer);
+
+        if(SIDCHECK == "SID"){
+
+        ui->flowtimerout->setText(flowtimerforsid);
+        }else{
+        ui->flowtimerout->setText(flowtimeroutput);
+        }
+        secretflowtarget = targetflowtimercalculator;
+        secretframehit = ui->convertertargetframe->value();
+
+
+    }
+
+
+
+//standard flowtimer adjustment
+void blisytv::on_pushButton_7_clicked()
+{
+    //calls settings values
+    Settings();
+   int framehit;
+   int adjustby;
+   framehit = ui->convertertargetframehit->value();
+   adjustby = secretframehit - framehit + ui->adjustedby->value();
+   ui->adjustedby->setValue(adjustby);
+
+
+
+
+}
+
+//flowtimer adjustment output
+void blisytv::on_pushButton_6_clicked()
+{
+    //calls settings values
+    Settings();
+    int introtimerint;
+    int adjustedframe;
+    int adjustms;
+    int adjustedms;
+    int adjustmentout;
+    QString flowtimeroutput;
+    QString adjustedmsstring;
+    QString introtimerstring;
+    QString flowtimerout;
+    QString SIDCHECK;
+    introtimerint = introtimerms;
+    adjustedframe = ui->convertertargetframehit->value() + ui->adjustedby->value();
+    adjustms = 1 / frameRate * 1000 * ui->adjustedby->value();
+    adjustedms = ((1 / frameRate * 1000) * (ui->convertertargetframe->value() + ui->delaybox->value())) + adjustms;
+    adjustmentout = adjustedms + introtimerms;
+    flowtimeroutput = QString::number(adjustmentout);
+    introtimerstring = QString::number(ui->introtimer->value());
+
+    if (ui->abrabox->isChecked()){
+   flowtimerout = flowtimeroutput + "/" + introtimerstring + "/" + abratimerms;
+    }else{
+        flowtimerout = flowtimeroutput + "/" + introtimerstring;
+    }
+
+    SIDCHECK = ui->methodbox->currentText();
+
+    adjustedmsstring = QString::number(adjustedms);
+
+    if(SIDCHECK == "SID"){
+
+    ui->flowtimerouthit->setText(adjustedmsstring);
+    }else{
+    ui->flowtimerouthit->setText(flowtimerout);
+    }
+    ui->flowtimerouthit->selectAll();
+    ui->flowtimerouthit->copy();
+}
 
 
 blisytv::~blisytv()
@@ -191,5 +330,88 @@ blisytv::~blisytv()
 
 
 
+void blisytv::flowtimer()
+{
+
+    Settings();
+
+    //setting int and qstrings for this function, the qstrings just become qstringnumbers
+
+    QString flowtimertotal;
+    QString flowtimertv;
+    QString introtimer;
+    int originalflowtimer;
+    int originalflowtimertv;
+    int flowtimer;
+    int flowtimerteli;
+    int introtimer1;
+    int invisiblecurrenttarget;
+    int invisibletvtarget;
 
 
+    //this gets value from the 35000 ms intro timer box and turns it into a qstring for when its output
+    introtimer1 = ui->introtimer->value();
+    introtimer = QString::number(introtimer1);
+
+    //these are the adjustment values
+    flowtimerteli = ui->outputmsadjust2->value();
+    flowtimer = ui->outputmsadjust1->value();
+
+    //these are the values from the original calculation button
+    originalflowtimer = secrettarget;
+    originalflowtimertv = secrettv;
+
+    invisiblecurrenttarget = originalflowtimer + flowtimer;
+    invisibletvtarget = originalflowtimertv + flowtimerteli;
+
+    //This adds the original calibration value with the adjustment value while it's in a qstring
+    flowtimertotal = QString::number(invisiblecurrenttarget);
+
+    //this checks to esee if abrabox is checked, and if it is adds abratimerms to the output for the flow timer copy/paste, if it's unchecked it doesn't output that value.
+    if (ui->abrabox->isChecked()){
+        ui->flow1->setText( flowtimertotal + "/" + introtimer + "/" + abratimerms);
+    } else{
+    ui->flow1->setText( flowtimertotal + "/" + introtimer);
+    }
+
+
+    //sets the teachytv value for flowtimer box
+    flowtimertv = QString::number(invisibletvtarget);
+    ui->flowtv->setText(flowtimertv);
+
+
+
+    //this sets these values to our former flowtimer values, so when you click update it doesn't update from the original "total ms" and "tv ms" every time, it updates continuously.
+    secrettv = invisibletvtarget;
+    secrettarget = invisiblecurrenttarget;
+
+    ui->pushButton_3->setEnabled(false);
+
+
+
+
+}
+
+void blisytv::on_pushButton_3_clicked()
+{
+    flowtimer();
+}
+
+void blisytv::on_pushButton_5_clicked()
+{
+  ui->flowtimerout->selectAll();
+  ui->flowtimerout->copy();
+}
+
+
+void blisytv::on_pushButton_8_clicked()
+{
+    ui->flow1->selectAll();
+    ui->flow1->copy();
+}
+
+void blisytv::on_pushButton_9_clicked()
+{
+    ui->flowtv->selectAll();
+    ui->flowtv->copy();
+}
