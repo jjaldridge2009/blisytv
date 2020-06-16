@@ -21,9 +21,10 @@ private slots:
     void on_pushButton_2_clicked();
 
 
-
+    void Pretimer();
     void on_clear_clicked();
     void Settings();
+    void Methodbox();
     void on_methodbox_activated(const QString &arg1);
 
     void on_pushButton_4_clicked();
@@ -41,6 +42,10 @@ private slots:
     void on_pushButton_8_clicked();
 
     void on_pushButton_9_clicked();
+
+    void on_consoleBox_activated(const QString &arg1);
+
+    void on_versionBox_activated(const QString &arg1);
 
 private:
     Ui::blisytv *ui;

@@ -2,6 +2,7 @@
 #include "ui_blisytv.h"
 #include <cmath>
 #include <iostream>
+#include <QFile>
 
 //defining global ints
 int targetf;
@@ -23,7 +24,7 @@ QString console;
 QString gameversion;
 QString method;
 QString abratimerms;
-
+QString pretimergame;
 
 blisytv::blisytv(QWidget *parent)
     : QMainWindow(parent)
@@ -34,7 +35,90 @@ blisytv::blisytv(QWidget *parent)
 
 }
 
+// This is a function to make the R/S/E ID parameter change to -75 instead of -249 automatically.
+void blisytv::Methodbox(){
+method = ui->methodbox->currentText();
+gameversion = ui->versionBox->currentText();
 
+if (method == "Stationary (Method 1/2/4)"){
+    ui->delaybox->setEnabled(true);
+    ui->delaybox->setValue(-20);
+}   else if (method == "Sweet Scent (Outside)"){
+    ui->delaybox->setEnabled(false);
+    ui->delaybox->setValue(-261);
+}   else if (method == "Sweet Scent (Cave)"){
+    ui->delaybox->setEnabled(false);
+    ui->delaybox->setValue(-268);
+}   else if (method == "SID" && gameversion =="RS"){
+     ui->delaybox->setEnabled(true);
+    ui->delaybox->setValue(-75);
+
+
+}else if (method == "SID" && gameversion == "Emerald"){
+    ui->delaybox->setEnabled(true);
+    ui->delaybox->setValue(-50);
+
+}
+else if (method == "SID" && (gameversion == "FireRed 1.0" || "FireRed 1.1" || "LeafGreen")){
+    ui->delaybox->setEnabled(true);
+   ui->delaybox->setValue(-249);
+}
+else{
+    ui->delaybox->setValue(delayboxvalue);
+}
+
+}
+//This is a function to change the value in the introtimer box. 35000 is the standard for FRLG on NDS. 30833 is an equivalent of that for GBA. 5000 is the norm for RSE.
+void blisytv::Pretimer()
+{
+    gameversion = ui->versionBox->currentText();
+    pretimergame = ui->consoleBox->currentText();
+
+
+if(pretimergame == "NDS" && gameversion == "FireRed 1.0"){
+
+    ui->introtimer->setValue(35000);
+}
+else if(pretimergame == "NDS" && gameversion == "FireRed 1.1"){
+
+    ui->introtimer->setValue(35000);
+}
+else if(pretimergame == "NDS" && gameversion == "LeafGreen"){
+
+    ui->introtimer->setValue(35000);
+}
+else if(pretimergame == "NDS" && gameversion == "RS"){
+
+    ui->introtimer->setValue(5000);
+}else if(pretimergame == "NDS" && gameversion == "Emerald"){
+
+    ui->introtimer->setValue(5000);
+}else if (pretimergame == "GBA" && gameversion == "FireRed 1.0"){
+
+    ui->introtimer->setValue(30833);
+
+}else if (pretimergame == "GBA" && gameversion == "FireRed 1.1"){
+
+    ui->introtimer->setValue(30833);
+
+}else if (pretimergame == "GBA" && gameversion == "LeafGreen"){
+
+    ui->introtimer->setValue(30833);
+
+}else if (pretimergame == "GBA" && gameversion == "RS"){
+
+    ui->introtimer->setValue(5000);
+
+}else if (pretimergame == "GBA" && gameversion == "Emerald"){
+
+    ui->introtimer->setValue(5000);
+
+}else{
+    ui->introtimer->setValue(ui->introtimer->value());
+
+}
+
+}
 
 
 void blisytv::Settings()
@@ -43,8 +127,10 @@ console = ui->consoleBox->currentText();
 if (console == "NDS"){
     frameRate = 59.6555;
 
-}else{
+}else if(console == "GBA"){
     frameRate = 59.7275;
+}else{
+    frameRate = 60.0000;
 }
 
 gameversion = ui->versionBox->currentText();
@@ -55,8 +141,14 @@ if (gameversion == "FireRed 1.0"){
     seedlag = 120;
 } else if(gameversion == "LeafGreen"){
     seedlag = 114;
+}
+    else if(gameversion == "RS" || "Emerald"){
+        seedlag = 0;
+
 
 }
+
+
 
 //this takes the valuye from abratimers checkbox, converts it to ms after subtracting 20 and accounting for seedlag, then adds it to the introtimer
 abratimer = (1 / frameRate * 1000 ) * (ui->abraframe->value() - 20 + seedlag) + ui->introtimer->value();
@@ -70,28 +162,17 @@ delayboxvalue = ui->delaybox->value();
 
 }
 
-
+//this changes the intro timer based on console. NDS has a 35000, GBA has 30833, and BOX will have 5000. This is the standard pretimer for those games.
+void blisytv::on_consoleBox_activated(const QString &arg1)
+{
+Methodbox();
+Pretimer();
+}
 
 //this is the lag selector for whichever rng method you're using
 void blisytv::on_methodbox_activated(const QString &arg1)
 {
-    method = ui->methodbox->currentText();
-
-    if (method == "Stationary (Method 1/2/4)"){
-        ui->delaybox->setEnabled(true);
-        ui->delaybox->setValue(-20);
-    }   else if (method == "Sweet Scent (Outside)"){
-        ui->delaybox->setEnabled(false);
-        ui->delaybox->setValue(-261);
-    }   else if (method == "Sweet Scent (Cave)"){
-        ui->delaybox->setEnabled(false);
-        ui->delaybox->setValue(-268);
-    }   else if (method == "SID"){
-         ui->delaybox->setEnabled(true);
-        ui->delaybox->setValue(-249);
-    }else{
-        ui->delaybox->setValue(delayboxvalue);
-    }
+   Methodbox();
 }
 
 
@@ -415,3 +496,12 @@ void blisytv::on_pushButton_9_clicked()
     ui->flowtv->selectAll();
     ui->flowtv->copy();
 }
+
+
+
+void blisytv::on_versionBox_activated(const QString &arg1)
+{
+Methodbox();
+Pretimer();
+}
+
