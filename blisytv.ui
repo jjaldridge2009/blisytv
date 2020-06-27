@@ -36,6 +36,11 @@
       <string>GBA</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>3DS</string>
+     </property>
+    </item>
    </widget>
    <widget class="QComboBox" name="versionBox">
     <property name="geometry">
@@ -69,6 +74,16 @@
     <item>
      <property name="text">
       <string>Emerald</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>SM</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>USUM</string>
      </property>
     </item>
    </widget>

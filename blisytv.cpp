@@ -113,7 +113,20 @@ else if(pretimergame == "NDS" && gameversion == "RS"){
 
     ui->introtimer->setValue(5000);
 
-}else{
+}else if (pretimergame == "3DS" && gameversion == "SM"){
+
+    ui->introtimer->setValue(3500);
+    ui->delaybox->setValue(0);
+
+
+}else if (pretimergame == "3DS" && gameversion == "USUM"){
+
+    ui->introtimer->setValue(2500);
+     ui->delaybox->setValue(0);
+}
+
+
+else{
     ui->introtimer->setValue(ui->introtimer->value());
 
 }
@@ -142,7 +155,7 @@ if (gameversion == "FireRed 1.0"){
 } else if(gameversion == "LeafGreen"){
     seedlag = 114;
 }
-    else if(gameversion == "RS" || "Emerald"){
+    else if(gameversion == "RS" || "Emerald" || "SM" || "USUM"){
         seedlag = 0;
 
 
