@@ -256,7 +256,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -669,7 +669,7 @@
          <x>60</x>
          <y>140</y>
          <width>121</width>
-         <height>51</height>
+         <height>61</height>
         </rect>
        </property>
        <property name="text">
@@ -689,6 +689,44 @@
         <string>Clear</string>
        </property>
       </widget>
+      <widget class="QCheckBox" name="manualbox">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>180</y>
+         <width>111</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>7</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>If unsure don't check</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_23">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>190</y>
+         <width>101</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Manual Adjust</string>
+       </property>
+      </widget>
+      <zorder>label_23</zorder>
+      <zorder>label_12</zorder>
+      <zorder>clear</zorder>
+      <zorder>manualbox</zorder>
      </widget>
      <widget class="QSpinBox" name="outputadjust2">
       <property name="geometry">
@@ -829,7 +867,7 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>180</y>
+        <y>150</y>
         <width>101</width>
         <height>61</height>
        </rect>
@@ -957,7 +995,7 @@
        <property name="geometry">
         <rect>
          <x>30</x>
-         <y>160</y>
+         <y>190</y>
          <width>121</width>
          <height>41</height>
         </rect>

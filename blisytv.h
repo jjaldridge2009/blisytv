@@ -47,6 +47,8 @@ private slots:
 
     void on_versionBox_activated(const QString &arg1);
 
+    void on_manualbox_stateChanged(int arg1);
+
 private:
     Ui::blisytv *ui;
 };

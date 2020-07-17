@@ -7,7 +7,7 @@
 //defining global ints
 int targetf;
 int seedlag;
-int secrettarget;
+long double secrettarget;
 int secrettv;
 int delayboxvalue;
 long double introtimerms;
@@ -15,6 +15,10 @@ int abratimer;
 int secretflowtarget;
 int newframe;
 int secretframehit;
+int secretintrotimer;
+int totaloutput;
+
+
 //defining global long doubles(I use longdoubles with things for decimals, everything eventually ends as an int, but the rounding is better whenever two longdoubles multiply vs eachother)
 long double frameRate;
 long double seedlagms;
@@ -173,6 +177,7 @@ introtimerms = ui->introtimer->value() + seedlagms;
 delayboxvalue = ui->delaybox->value();
 
 
+
 }
 
 //this changes the intro timer based on console. NDS has a 35000, GBA has 30833, and BOX will have 5000. This is the standard pretimer for those games.
@@ -202,8 +207,8 @@ void blisytv::on_pushButton_clicked()
     Settings();
 
     //this is code for calculating your target teachytv frame, and total target frame
-
     int introtimerframes;
+
     introtimerframes = introtimerms / 1000 * frameRate;
     int outoftvf;
     targetf = ui -> targetframe->value();
@@ -214,11 +219,10 @@ void blisytv::on_pushButton_clicked()
     int totaltvf = (targetf - outoftvf)/313 + 33;
     long double remain = (targetf - outoftvf) % 313;
     int outsidetv = (remain + outoftvf) - 33;
-    int totaloutput;
-    totaloutput = totaltvf + outsidetv + introtimerframes + ui->delaybox->value();
-    ui->output1->setValue(totaloutput);
+    totaloutput = totaltvf + outsidetv + ui->delaybox->value();
+    ui->output1->setValue(totaloutput + introtimerframes);
     ui->output2->setValue(totaltvf);
-    ui->outputms1->setValue(1 / frameRate * 1000 * totaloutput);
+    ui->outputms1->setValue((1 / frameRate * 1000 * totaloutput) + (1 / frameRate * 1000 * introtimerframes));
     ui->outputms2->setValue(1 / frameRate * 1000 * totaltvf);
 
 
@@ -227,10 +231,9 @@ void blisytv::on_pushButton_clicked()
 
 
     //this sets these values to the current output of outputms1/2 for later in the update flowtimer section.
-    secrettarget = ui->outputms1->value();
+    secrettarget = ui->outputms1->value() - introtimerms;
     secrettv = ui->outputms2->value();
-
-   //this is so when you change target frames, the calibrate values don't mess with it if they're there from a previous rng.
+    //this is so when you change target frames, the calibrate values don't mess with it if they're there from a previous rng.
     ui->outputadjust2->setValue(0);
     ui->outputadjust1->setValue(0);
     ui->outputmsadjust2->setValue(0);
@@ -280,7 +283,6 @@ void blisytv::on_pushButton_2_clicked()
     ui->outputmsadjust1->setValue(totalmsout + totaltvout);
 
 
-
 }
 
 
@@ -314,7 +316,6 @@ void blisytv::on_pushButton_4_clicked()
         int targetflowtimercalculator;
         int flowtimerout;
         int introtimerint;
-
         QString flowtimeroutput;
         QString SIDCHECK;
         QString introtimerstring;
@@ -442,6 +443,9 @@ void blisytv::flowtimer()
     int invisiblecurrenttarget;
     int invisibletvtarget;
 
+    long double introtimerframes;
+
+    introtimerframes = introtimerms / 1000 * frameRate;
 
     //this gets value from the 35000 ms intro timer box and turns it into a qstring for when its output
     introtimer1 = ui->introtimer->value();
@@ -451,8 +455,9 @@ void blisytv::flowtimer()
     flowtimerteli = ui->outputmsadjust2->value();
     flowtimer = ui->outputmsadjust1->value();
 
+
     //these are the values from the original calculation button
-    originalflowtimer = secrettarget;
+    originalflowtimer = secrettarget +  (1 / frameRate * 1000 * introtimerframes);
     originalflowtimertv = secrettv;
 
     invisiblecurrenttarget = originalflowtimer + flowtimer;
@@ -474,10 +479,9 @@ void blisytv::flowtimer()
     ui->flowtv->setText(flowtimertv);
 
 
-
     //this sets these values to our former flowtimer values, so when you click update it doesn't update from the original "total ms" and "tv ms" every time, it updates continuously.
     secrettv = invisibletvtarget;
-    secrettarget = invisiblecurrenttarget;
+    secrettarget = invisiblecurrenttarget - (1 / frameRate * 1000 * introtimerframes);
 
     ui->pushButton_3->setEnabled(false);
 
@@ -518,3 +522,21 @@ Methodbox();
 Pretimer();
 }
 
+
+void blisytv::on_manualbox_stateChanged(int arg1)
+{
+    if(ui->manualbox->isChecked()){
+        ui->outputadjust1->setReadOnly(false);
+        ui->outputadjust2->setReadOnly(false);
+        ui->outputmsadjust1->setReadOnly(false);
+        ui->outputmsadjust2->setReadOnly(false);
+
+    }else{
+
+        ui->outputadjust1->setReadOnly(true);
+        ui->outputadjust2->setReadOnly(true);
+        ui->outputmsadjust1->setReadOnly(true);
+        ui->outputmsadjust2->setReadOnly(true);
+    }
+
+}
