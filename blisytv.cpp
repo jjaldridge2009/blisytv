@@ -220,9 +220,9 @@ void blisytv::on_pushButton_clicked()
     long double remain = (targetf - outoftvf) % 313;
     int outsidetv = (remain + outoftvf) - 33;
     totaloutput = totaltvf + outsidetv + ui->delaybox->value();
-    ui->output1->setValue(totaloutput + introtimerframes);
+    ui->output1->setValue(totaloutput);
     ui->output2->setValue(totaltvf);
-    ui->outputms1->setValue((1 / frameRate * 1000 * totaloutput) + (1 / frameRate * 1000 * introtimerframes));
+    ui->outputms1->setValue((1 / frameRate * 1000 * totaloutput) + introtimerms);
     ui->outputms2->setValue(1 / frameRate * 1000 * totaltvf);
 
 
@@ -266,11 +266,11 @@ void blisytv::on_pushButton_2_clicked()
     long double adjout;
     adjout = adjtv % 313;
     if( adjout >= 156){
-    adjout = 313 - adjout;
+    adjout = -313 + adjout;
     adjtv2++;
     } else if ( adjout > -156){
     }else {
-    adjout = -313 - adjout;
+    adjout = 313 + adjout;
     adjtv2--;
     }
     ui->outputadjust2->setValue(adjtv2);
